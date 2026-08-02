@@ -3,8 +3,10 @@ import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ServiceDetailScreen = ({ service, token, setScreen, setSelectedService }) => {
+const ServiceDetailScreen = ({ route, navigation }) => {
+  const { service } = route.params;
   const [loading, setLoading] = useState(false);
 
   const formatPrice = (price) => {
@@ -17,8 +19,7 @@ const ServiceDetailScreen = ({ service, token, setScreen, setSelectedService }) 
   };
 
   const handleEdit = () => {
-    setSelectedService(service);
-    setScreen('EDIT');
+    navigation.navigate('Edit', { service });
   };
 
   const handleDelete = () => {
@@ -33,6 +34,8 @@ const ServiceDetailScreen = ({ service, token, setScreen, setSelectedService }) 
           onPress: async () => {
             setLoading(true);
             try {
+              const token = await AsyncStorage.getItem('userToken');
+
               await axios.delete(
                 `https://kami-backend-5rs0.onrender.com/services/${service._id}`,
                 {
@@ -44,7 +47,7 @@ const ServiceDetailScreen = ({ service, token, setScreen, setSelectedService }) 
               );
 
               Alert.alert('Success', 'Delete service successfully!');
-              setScreen('HOME');
+              navigation.goBack();
 
             } catch (error) {
               const errorMessage = error.response?.data?.message || 'Cannot delete service';
@@ -64,7 +67,7 @@ const ServiceDetailScreen = ({ service, token, setScreen, setSelectedService }) 
   return (
     <>
       <Appbar.Header style={styles.header}>
-        <Appbar.BackAction color="white" onPress={() => setScreen('HOME')} />
+        <Appbar.BackAction color="white" onPress={() => navigation.goBack()} />
         <Appbar.Content title="Service Detail" color="white" titleStyle={styles.headerTitle} />
 
         <Menu>
@@ -123,10 +126,6 @@ const optionsStyles = {
     marginTop: 55,
     marginRight: 0,
     width: 150,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
     elevation: 5,
   },
 };
@@ -170,7 +169,7 @@ const styles = StyleSheet.create({
   loadingOverlay: {
     position: 'absolute',
     top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },

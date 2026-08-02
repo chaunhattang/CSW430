@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
 import { TextInput, Button, Appbar } from 'react-native-paper';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const AddServiceScreen = ({ token, setScreen }) => {
+const AddServiceScreen = ({ navigation }) => {
   const [serviceName, setServiceName] = useState('');
   const [price, setPrice] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,8 @@ const AddServiceScreen = ({ token, setScreen }) => {
 
     setLoading(true);
     try {
+      const token = await AsyncStorage.getItem('userToken');
+
       const response = await axios.post(
         'https://kami-backend-5rs0.onrender.com/services',
         {
@@ -37,7 +40,7 @@ const AddServiceScreen = ({ token, setScreen }) => {
       Alert.alert('Success', 'Added service successfully!');
       setServiceName('');
       setPrice('');
-      setScreen('HOME');
+      navigation.goBack();
 
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Cannot add service!';
@@ -47,10 +50,11 @@ const AddServiceScreen = ({ token, setScreen }) => {
       setLoading(false);
     }
   };
+
   return (
     <>
-      <Appbar.Header style={{ backgroundColor: '#E5536F' }}>
-        <Appbar.BackAction color="white" onPress={() => setScreen('HOME')} />
+      <Appbar.Header style={styles.header}>
+        <Appbar.BackAction color="white" onPress={() => navigation.goBack()} />
         <Appbar.Content
           title="Add Service"
           color="white"
@@ -60,8 +64,7 @@ const AddServiceScreen = ({ token, setScreen }) => {
 
       <View style={styles.formContainer}>
         <Text style={styles.label}>
-          Service name
-          <Text style={{ color: 'red' }}>*</Text>
+          Service name <Text style={{ color: 'red' }}>*</Text>
         </Text>
         <TextInput
           style={styles.input}
@@ -87,6 +90,7 @@ const AddServiceScreen = ({ token, setScreen }) => {
           style={styles.button}
           mode="contained"
           onPress={handleAdd}
+          disabled={loading}
           labelStyle={styles.buttonText}>
           {loading ? 'Adding...' : 'Add'}
         </Button>
@@ -103,11 +107,15 @@ const AddServiceScreen = ({ token, setScreen }) => {
 };
 
 const styles = StyleSheet.create({
+  header: {
+    backgroundColor: '#E5536F',
+  },
   headerTitle: {
     fontWeight: 'bold',
     fontSize: 20,
   },
   formContainer: {
+    flex: 1,
     paddingHorizontal: 20,
     paddingTop: 30,
   },
@@ -145,7 +153,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -156,4 +164,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 export default AddServiceScreen;

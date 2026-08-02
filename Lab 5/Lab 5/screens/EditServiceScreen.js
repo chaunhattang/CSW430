@@ -1,16 +1,19 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
 import { TextInput, Button, Appbar } from 'react-native-paper';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const EditServiceScreen = ({ service, token, setScreen }) => {
+const EditServiceScreen = ({ route, navigation }) => {
+  const { service } = route.params;
+
   const [serviceName, setServiceName] = useState(service?.name || '');
   const [price, setPrice] = useState(service?.price?.toString() || '');
   const [loading, setLoading] = useState(false);
 
   const handleUpdate = async () => {
     if (!serviceName.trim()) {
-      Alert.alert('Eror', 'Enter service name!');
+      Alert.alert('Error', 'Enter service name!');
       return;
     }
     if (!price || isNaN(price) || Number(price) <= 0) {
@@ -20,6 +23,8 @@ const EditServiceScreen = ({ service, token, setScreen }) => {
 
     setLoading(true);
     try {
+      const token = await AsyncStorage.getItem('userToken');
+
       const response = await axios.put(
         `https://kami-backend-5rs0.onrender.com/services/${service._id}`,
         {
@@ -35,7 +40,7 @@ const EditServiceScreen = ({ service, token, setScreen }) => {
       );
 
       Alert.alert('Success', 'Edit service successfully!');
-      setScreen('HOME');
+      navigation.navigate('Home')
 
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Cannot edit service!';
@@ -49,7 +54,7 @@ const EditServiceScreen = ({ service, token, setScreen }) => {
   return (
     <>
       <Appbar.Header style={styles.header}>
-        <Appbar.BackAction color="white" onPress={() => setScreen('DETAIL')} />
+        <Appbar.BackAction color="white" onPress={() => navigation.goBack()} />
         <Appbar.Content
           title="Edit Service"
           color="white"
@@ -148,7 +153,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },

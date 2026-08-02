@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { TextInput, Button } from 'react-native-paper';
 import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const LoginScreen = ({ setToken, setScreen }) => {
+const LoginScreen = ({ navigation }) => {
   const [phone, setPhone] = useState('0373007856');
   const [password, setPassword] = useState('123');
   const [secureText, setSecureText] = useState(true);
@@ -33,9 +33,8 @@ const LoginScreen = ({ setToken, setScreen }) => {
 
       if (response.data.token) {
         await AsyncStorage.setItem('userToken', response.data.token);
-        setToken(response.data.token);
         Alert.alert('Success', 'Login Successfully');
-        setScreen('HOME');
+        navigation.replace('Home');
       } else {
         Alert.alert('Error', 'Wrong password or no token returned!');
       }
@@ -48,6 +47,7 @@ const LoginScreen = ({ setToken, setScreen }) => {
       setLoading(false);
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
@@ -83,10 +83,10 @@ const LoginScreen = ({ setToken, setScreen }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
-    height: "100%",
-    paddingTop: 100,
+    flex: 1,
     backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     paddingHorizontal: 30,
