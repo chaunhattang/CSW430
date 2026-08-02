@@ -1,12 +1,15 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 const Service = ({ id, name, price, onPress }) => {
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <Text style={styles.name} numberOfLines={1}>
         {name}
       </Text>
-      <Text style={styles.price}>{price} đ</Text>
+      <Text style={styles.price}>{formatPrice(price)}</Text>
     </TouchableOpacity>
   );
 };

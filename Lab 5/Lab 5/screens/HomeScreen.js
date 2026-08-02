@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Service from '../components/Service';
+import axios from 'axios';
 
 const HomeScreen = ({ token, setToken, setScreen, setSelectedService }) => {
   const [services, setServices] = useState([]);
@@ -16,26 +17,19 @@ const HomeScreen = ({ token, setToken, setScreen, setSelectedService }) => {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch(
-        'https://kami-backend-5rs0.onrender.com/services',
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+      setLoading(true);
+      const response = await axios.get('https://kami-backend-5rs0.onrender.com/services', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         }
-      );
+      });
 
-      const data = await response.json();
+      setServices(response.data);
 
-      if (response.ok) {
-        setServices(data);
-      } else {
-        Alert.alert('Errir', 'Cannot access service list');
-      }
     } catch (error) {
-      console.error(error);
+      console.error('Error service list:', error);
+      Alert.alert('Error', 'Cannot access service list');
     } finally {
       setLoading(false);
     }

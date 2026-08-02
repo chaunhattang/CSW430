@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
 import { TextInput, Button, Appbar } from 'react-native-paper';
+import axios from 'axios';
 
 const EditServiceScreen = ({ service, token, setScreen }) => {
   const [serviceName, setServiceName] = useState(service?.name || '');
@@ -19,30 +20,26 @@ const EditServiceScreen = ({ service, token, setScreen }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(
+      const response = await axios.put(
         `https://kami-backend-5rs0.onrender.com/services/${service._id}`,
         {
-          method: 'PUT',
+          name: serviceName.trim(),
+          price: Number(price),
+        },
+        {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            name: serviceName.trim(),
-            price: Number(price),
-          }),
         }
       );
 
-      if (response.ok) {
-        Alert.alert('Success', 'Edit service successfully!');
-        setScreen('HOME');
-      } else {
-        const errorData = await response.json();
-        Alert.alert('Error', errorData.message || 'Cannot edit service!');
-      }
+      Alert.alert('Success', 'Edit service successfully!');
+      setScreen('HOME');
+
     } catch (error) {
-      Alert.alert('Error', 'Cannot access server!');
+      const errorMessage = error.response?.data?.message || 'Cannot edit service!';
+      Alert.alert('Error', errorMessage);
       console.error('Update Service Error:', error);
     } finally {
       setLoading(false);

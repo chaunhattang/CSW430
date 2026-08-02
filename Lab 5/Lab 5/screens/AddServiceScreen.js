@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
 import { TextInput, Button, Appbar } from 'react-native-paper';
+import axios from 'axios';
 
 const AddServiceScreen = ({ token, setScreen }) => {
   const [serviceName, setServiceName] = useState('');
@@ -19,32 +20,28 @@ const AddServiceScreen = ({ token, setScreen }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(
+      const response = await axios.post(
         'https://kami-backend-5rs0.onrender.com/services',
         {
-          method: 'POST',
+          name: serviceName.trim(),
+          price: Number(price),
+        },
+        {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            name: serviceName.trim(),
-            price: Number(price),
-          }),
         }
       );
 
-      if (response.ok) {
-        Alert.alert('Sucess', 'Added service successfully!');
-        setServiceName('');
-        setPrice('');
-        setScreen('HOME');
-      } else {
-        const errorData = await response.json();
-        Alert.alert('Error', errorData.message || 'Cannot add service!');
-      }
+      Alert.alert('Success', 'Added service successfully!');
+      setServiceName('');
+      setPrice('');
+      setScreen('HOME');
+
     } catch (error) {
-      Alert.alert('Error', 'Cannot access server!');
+      const errorMessage = error.response?.data?.message || 'Cannot add service!';
+      Alert.alert('Error', errorMessage);
       console.error('Add Service Error:', error);
     } finally {
       setLoading(false);

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import axios from 'axios';
 
 const ServiceDetailScreen = ({ service, token, setScreen, setSelectedService }) => {
   const [loading, setLoading] = useState(false);
@@ -32,10 +33,9 @@ const ServiceDetailScreen = ({ service, token, setScreen, setSelectedService }) 
           onPress: async () => {
             setLoading(true);
             try {
-              const response = await fetch(
+              await axios.delete(
                 `https://kami-backend-5rs0.onrender.com/services/${service._id}`,
                 {
-                  method: 'DELETE',
                   headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -43,15 +43,12 @@ const ServiceDetailScreen = ({ service, token, setScreen, setSelectedService }) 
                 }
               );
 
-              if (response.ok) {
-                Alert.alert('Success', 'Delete service successfully!');
-                setScreen('HOME');
-              } else {
-                const errorData = await response.json();
-                Alert.alert('Error', errorData.message || 'Cannot delete service');
-              }
+              Alert.alert('Success', 'Delete service successfully!');
+              setScreen('HOME');
+
             } catch (error) {
-              Alert.alert('Error', 'Cannot access server!');
+              const errorMessage = error.response?.data?.message || 'Cannot delete service';
+              Alert.alert('Error', errorMessage);
               console.error('Delete Error:', error);
             } finally {
               setLoading(false);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { TextInput, Button } from 'react-native-paper';
 import { StyleSheet, Text, View, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const LoginScreen = ({ setToken, setScreen }) => {
   const [phone, setPhone] = useState('0373007856');
@@ -17,30 +18,32 @@ const LoginScreen = ({ setToken, setScreen }) => {
     setLoading(true);
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         'https://kami-backend-5rs0.onrender.com/auth',
         {
-          method: 'POST',
+          phone: phone,
+          password: password,
+        },
+        {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ phone: phone, password: password }),
         }
       );
 
-      const data = await response.json();
-
-      if (response.ok && data.token) {
-        await AsyncStorage.setItem('userToken', data.token);
-        setToken(data.token);
+      if (response.data.token) {
+        await AsyncStorage.setItem('userToken', response.data.token);
+        setToken(response.data.token);
         Alert.alert('Success', 'Login Successfully');
         setScreen('HOME');
       } else {
-        Alert.alert('Error', data.message || 'Wrong password!');
+        Alert.alert('Error', 'Wrong password or no token returned!');
       }
+
     } catch (error) {
-      Alert.alert('Error', 'Cannot access server!');
-      console.error(error);
+      const errorMessage = error.response?.data?.message || 'Cannot access server!';
+      Alert.alert('Error', errorMessage);
+      console.error('Login Error:', error);
     } finally {
       setLoading(false);
     }
