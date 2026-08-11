@@ -70,7 +70,7 @@ export default function TransactionScreen({ navigation }) {
                 transaction={item}
                 onPress={() =>
                   navigation.navigate('TransactionDetail', {
-                    id: item._id || item.id,
+                    transaction : item
                   })
                 }
               />

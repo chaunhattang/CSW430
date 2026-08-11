@@ -12,7 +12,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TransactionDetailScreen = ({ route, navigation }) => {
-  const { id } = route.params;
+  const { transaction } = route.params;
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,7 +33,7 @@ const TransactionDetailScreen = ({ route, navigation }) => {
       try {
         const token = await AsyncStorage.getItem('userToken');
         const response = await axios.get(
-          `https://kami-backend-5rs0.onrender.com/transactions/${id}`,
+          `https://kami-backend-5rs0.onrender.com/transactions/${transaction._id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -46,7 +46,43 @@ const TransactionDetailScreen = ({ route, navigation }) => {
       }
     };
     fetchDetail();
-  }, [id]);
+  }, [transaction._id]);
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Warning',
+      'Are you sure that you want to remove this transaction? This operation cannot be returned',
+      [
+        { text: 'CANCEL', style: 'cancel' },
+        {
+          text: 'DELETE',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const token = await AsyncStorage.getItem('userToken');
+
+              await axios.delete(
+                `https://kami-backend-5rs0.onrender.com/transactions/${transaction._id}`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
+
+              Alert.alert('Success', 'Delete transactions successfully!');
+              navigation.goBack();
+            } catch (error) {
+              const errorMessage =
+                error.response?.data?.message || 'Cannot delete transactions';
+              Alert.alert('Error', errorMessage);
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   if (loading) {
     return (
@@ -65,25 +101,31 @@ const TransactionDetailScreen = ({ route, navigation }) => {
           color="white"
           titleStyle={styles.headerTitle}
         />
+        <Appbar.Action icon="delete" color="white" onPress={handleDelete} />
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>General Information</Text>
-          <Text style={styles.row}>
-            Transaction code:{' '}
-            <Text style={styles.bold}>{detail?.id || detail?._id}</Text>
-          </Text>
-          <Text style={styles.row}>
-            Customer:{' '}
-            <Text style={styles.bold}>
+
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Transaction code</Text>
+            <Text style={styles.boldRight}>{detail?.id || detail?._id}</Text>
+          </View>
+
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Customer</Text>
+            <Text style={styles.boldRight}>
               {detail?.customer?.name} - {detail?.customer?.phone}
             </Text>
-          </Text>
-          <Text style={styles.row}>
-            Creation time:{' '}
-            <Text style={styles.bold}>{formatDate(detail?.createdAt)}</Text>
-          </Text>
+          </View>
+
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Creation time</Text>
+            <Text style={styles.boldRight}>
+              {formatDate(detail?.createdAt)}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.card}>
@@ -111,25 +153,34 @@ const TransactionDetailScreen = ({ route, navigation }) => {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Cost</Text>
-          <Text style={styles.row}>
-            Amount of money:{' '}
-            <Text style={styles.bold}>
+
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Amount of money</Text>
+            <Text style={styles.boldRight}>
               {formatPrice(detail?.priceBeforePromotion || detail?.price)}
             </Text>
-          </Text>
-          <Text style={styles.row}>
-            Discount:{' '}
-            <Text style={styles.bold}>
+          </View>
+
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Discount</Text>
+            <Text style={styles.boldRight}>
               -
               {formatPrice(
                 (detail?.priceBeforePromotion || 0) - (detail?.price || 0)
               )}
             </Text>
-          </Text>
-          <Text style={[styles.row, { fontSize: 16, marginTop: 10 }]}>
-            Total payment:{' '}
+          </View>
+
+          <View style={[styles.rowBetween, { marginTop: 10 }]}>
+            <Text
+              style={[
+                styles.label,
+                { fontSize: 16, fontWeight: 'bold', color: '#000' },
+              ]}>
+              Total payment
+            </Text>
             <Text style={styles.totalPrice}>{formatPrice(detail?.price)}</Text>
-          </Text>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -164,14 +215,23 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 15,
   },
-  row: {
-    fontSize: 14,
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginVertical: 4,
-    color: '#333',
   },
-  bold: {
+  label: {
+    fontSize: 14,
+    color: '#555',
+  },
+  boldRight: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#000',
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: 10,
   },
   serviceRow: {
     flexDirection: 'row',
