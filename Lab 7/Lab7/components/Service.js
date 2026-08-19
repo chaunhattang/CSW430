@@ -1,0 +1,49 @@
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+
+const Service = ({ name, price, onPress }) => {
+  const formatPrice = (val) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(val || 0);
+  };
+
+  return (
+    <TouchableOpacity style={styles.container} onPress={onPress}>
+      <Text style={styles.name} numberOfLines={1}>
+        {name}
+      </Text>
+      <Text style={styles.price}>{formatPrice(price)}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justify: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginHorizontal: 15,
+    marginVertical: 4,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
+  },
+  name: {
+    flex: 1,
+    fontSize: 15,
+    color: 'black',
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+  price: {
+    fontSize: 15,
+    color: 'black',
+  },
+});
+
+export default Service;

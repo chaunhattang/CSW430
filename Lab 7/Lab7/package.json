@@ -1,0 +1,30 @@
+{
+  "license": "0BSD",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~54.0.37",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-paper": "^5.12.3",
+    "@expo/vector-icons": "^15.0.3",
+    "axios": "*",
+    "react-native-screens": "~4.16.0",
+    "react-native-popup-menu": "*",
+    "@react-navigation/native": "*",
+    "@react-navigation/bottom-tabs": "*",
+    "@react-navigation/native-stack": "*",
+    "react-native-safe-area-context": "~5.6.0",
+    "@react-navigation/material-bottom-tabs": "*",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "react-native-element-dropdown": "*",
+    "react-native-bouncy-checkbox": "*"
+  },
+  "private": true
+}
